@@ -1,5 +1,4 @@
 #!/bin/python3
-import asyncio
 import json
 import time, datetime
 import discord
