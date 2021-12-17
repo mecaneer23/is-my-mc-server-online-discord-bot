@@ -15,22 +15,27 @@ client = discord.Client(intents=intents)
 output_log = True
 log_file = None
 
-def olprint(message): # output log print
+
+def olprint(message):  # output log print
     if output_log == True:
         print(f"{message}\n")
         if log_file != None:
             log_file.write(f"{message}\n")
 
+
 @client.event
 async def on_ready():
     olprint(f"Bot online with user: {client.user}\n")
-    botActivity = discord.Activity(type=discord.ActivityType.watching, name='for ;server')
+    botActivity = discord.Activity(type=discord.ActivityType.watching,
+                                   name='for ;server')
     await client.change_presence(activity=botActivity)
     time.sleep(1)
 
+
 @client.event
 async def on_message(message):
-    color = int(str(message.guild.get_member(client.user.id).roles[-1].color)[1:], 16)
+    color = int(
+        str(message.guild.get_member(client.user.id).roles[-1].color)[1:], 16)
     if message.content.lower().startswith(";server"):
         try:
             port = message.content.split(" ")[2]
@@ -40,15 +45,16 @@ async def on_message(message):
             server = message.content.split(" ")[1]
         except IndexError:
             olprint(f"{message.author} failed to include server")
-            await message.channel.send(
-                embed=discord.Embed(
-                    title="Bad Argument",
-                    color=color,
-                    description="Error: make sure to include a server and optional port - for example:\n```\n;server mc.server.net[ 12345]\n```"
-                )
-            )
-            return            
-        olprint(f"{str(datetime.datetime.now())}\n{message.author}: Pinging {server}")
+            await message.channel.send(embed=discord.Embed(
+                title="Bad Argument",
+                color=color,
+                description=
+                "Error: make sure to include a server and optional port - for example:\n```\n;server mc.server.net[ 12345]\n```"
+            ))
+            return
+        olprint(
+            f"{str(datetime.datetime.now())}\n{message.author}: Pinging {server}"
+        )
         try:
             if server == "tcwe.apexmc.co":
                 status = MinecraftServer(server, 25633).status()
@@ -57,32 +63,22 @@ async def on_message(message):
         except OSError as e:
             if str(e) == "timed out":
                 olprint(f"Invalid server address or request timed out")
-                await message.channel.send(
-                    embed=discord.Embed(
-                        title="Server Info",
-                        color=color,
-                        description="Error: Invalid server address or request timed out"
-                    )
-                )
+                await message.channel.send(embed=discord.Embed(
+                    title="Server Info",
+                    color=color,
+                    description=
+                    "Error: Invalid server address or request timed out"))
             else:
                 olprint(f"Server failed to respond: {e}")
                 await message.channel.send(
-                    embed=discord.Embed(
-                        title="Server Info",
-                        color=color,
-                        description=f"Error: {e}"
-                    )
-                )
+                    embed=discord.Embed(title="Server Info",
+                                        color=color,
+                                        description=f"Error: {e}"))
             return
         except Exception as e:
             olprint(f"Hmm... I don't know what this error is: {e}")
-            await message.channel.send(
-                embed=discord.Embed(
-                    title="Server Info",
-                    color=color,
-                    description=f"Error: {e}"
-                )
-            )
+            await message.channel.send(embed=discord.Embed(
+                title="Server Info", color=color, description=f"Error: {e}"))
             return
 
         online = status.players.online
@@ -94,33 +90,26 @@ async def on_message(message):
                 query = ""
         except KeyError as e:
             olprint(f"Server failed to respond: {e}")
-            await message.channel.send(
-                embed=discord.Embed(
-                    title="Server Info",
-                    color=color,
-                    description=f"Error: Possibly incorrect port, contact the server admins to learn more"
-                )
-            )
+            await message.channel.send(embed=discord.Embed(
+                title="Server Info",
+                color=color,
+                description=
+                f"Error: Possibly incorrect port, contact the server admins to learn more"
+            ))
             return
         players = ""
         for i in query:
             players += i + "\n"
         olprint(f"There are {str(online)} players online:\n{players or '...'}")
-        await message.channel.send(
-            embed=discord.Embed(
-                title="Server Info",
-                color=color
-            ).add_field(
-                name=f"There are {str(online)} players online:",
-                value=players or "..."
-            ).set_footer(
-                text="Due to inconsistent APIs, the player names may not always be correct"
-            )
-        )
+        await message.channel.send(embed=discord.Embed(
+            title="Server Info", color=color
+        ).add_field(
+            name=f"There are {str(online)} players online:",
+            value=players or "..."
+        ).set_footer(
+            text=
+            "Due to inconsistent APIs, the player names may not always be correct"
+        ))
+
 
 client.run(env["DISCORD_TOKEN"])
-
-'''
-NOTES
-
-'''
